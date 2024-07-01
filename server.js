@@ -84,6 +84,12 @@ app.post('/process-files', upload.array('files'), async (req, res) => {
 app.get('/download/:sessionId/:type', async (req, res) => {
     const { sessionId, type } = req.params;
     const sanitizedSessionId = path.basename(sessionId); // Sanitize session ID
+    
+    // Ensure 'type' parameter is either 'with_keyword' or 'without_keyword'
+    if (!['with_keyword', 'without_keyword'].includes(type)) {
+        return res.status(400).send('Invalid download type.');
+    }
+
     const folderPath = path.join(__dirname, 'uploads', sanitizedSessionId, type);
 
     try {

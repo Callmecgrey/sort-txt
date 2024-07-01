@@ -28,6 +28,24 @@
             <button id="download-with-keyword" class="btn">Download Files with Keyword</button>
             <button id="download-without-keyword" class="btn">Download Files without Keyword</button>
         </div>
+        
+        <!-- Custom Modal -->
+        <div id="confirmation-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <p>Are you sure you want to upload all files from the selected folder?</p>
+                <button id="confirm-upload">Yes</button>
+                <button id="cancel-upload">No</button>
+            </div>
+        </div>
+        
+        <!-- Checkmark Animation -->
+        <div id="checkmark-animation" class="checkmark-container" style="display:none;">
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+        </div>
     </div>
     <script src="sort.js"></script>
 </body>

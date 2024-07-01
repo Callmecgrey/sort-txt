@@ -8,19 +8,26 @@ document.getElementById('file-form').addEventListener('submit', async (e) => {
     const sessionId = generateSessionId();
 
     if (!files.length || !keywords) {
-        alert('Please select files and enter keywords.');
+        showAlert('Please select files and enter keywords.');
         return;
     }
 
-    const formData = new FormData();
-    for (const file of files) {
-        formData.append('files', file);
-    }
-    formData.append('keywords', keywords);
-    formData.append('sessionId', sessionId);
+    // Show custom confirmation modal
+    showModal(() => {
+        const formData = new FormData();
+        for (const file of files) {
+            formData.append('files', file);
+        }
+        formData.append('keywords', keywords);
+        formData.append('sessionId', sessionId);
 
-    document.getElementById('loading-bar').style.display = 'block';
+        document.getElementById('loading-bar').style.display = 'block';
 
+        processFiles(formData, sessionId);
+    });
+});
+
+async function processFiles(formData, sessionId) {
     try {
         const response = await fetch('/process-files', {
             method: 'POST',
@@ -35,13 +42,15 @@ document.getElementById('file-form').addEventListener('submit', async (e) => {
             document.getElementById('download-options').style.display = 'block';
             document.getElementById('download-with-keyword').dataset.sessionId = sessionId;
             document.getElementById('download-without-keyword').dataset.sessionId = sessionId;
+
+            showCheckmarkAnimation();
         }
     } catch (error) {
         console.error('Error:', error);
     } finally {
         document.getElementById('loading-bar').style.display = 'none';
     }
-});
+}
 
 document.getElementById('download-with-keyword').addEventListener('click', (event) => {
     const sessionId = event.target.dataset.sessionId;
@@ -68,4 +77,51 @@ window.addEventListener('beforeunload', async () => {
 
 function generateSessionId() {
     return crypto.getRandomValues(new Uint32Array(4)).join('-');
+}
+
+function showModal(onConfirm) {
+    const modal = document.getElementById('confirmation-modal');
+    const closeButton = modal.querySelector('.close-button');
+    const confirmButton = document.getElementById('confirm-upload');
+    const cancelButton = document.getElementById('cancel-upload');
+
+    modal.style.display = 'block';
+
+    closeButton.onclick = () => {
+        modal.style.display = 'none';
+    };
+
+    confirmButton.onclick = () => {
+        modal.style.display = 'none';
+        onConfirm();
+    };
+
+    cancelButton.onclick = () => {
+        modal.style.display = 'none';
+    };
+
+    window.onclick = (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+}
+
+function showCheckmarkAnimation() {
+    const checkmark = document.getElementById('checkmark-animation');
+    checkmark.style.display = 'block';
+    setTimeout(() => {
+        checkmark.style.display = 'none';
+    }, 2000);
+}
+
+function showAlert(message) {
+    const alertBox = document.createElement('div');
+    alertBox.className = 'alert-box';
+    alertBox.innerText = message;
+
+    document.body.appendChild(alertBox);
+    setTimeout(() => {
+        alertBox.remove();
+    }, 3000);
 }
