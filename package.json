@@ -1,0 +1,16 @@
+{
+    "name": "sort-txt",
+    "version": "1.0.0",
+    "description": "A simple app to sort .txt files based on a keyword",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "body-parser": "^1.20.2",
+        "express": "^4.19.2",
+        "multer": "^1.4.2"
+    },
+    "author": "",
+    "license": "ISC"
+}
