@@ -67,7 +67,5 @@ window.addEventListener('beforeunload', async () => {
 });
 
 function generateSessionId() {
-    return 'xxxx-xxxx-xxxx-xxxx'.replace(/[x]/g, () => {
-        return (Math.random() * 16 | 0).toString(16);
-    });
+    return crypto.getRandomValues(new Uint32Array(4)).join('-');
 }

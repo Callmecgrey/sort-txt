@@ -6,6 +6,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
 const archiver = require('archiver');
+const rateLimit = require('express-rate-limit');
 const app = express();
 const port = 3008;
 
@@ -13,7 +14,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-// Generate a unique session ID for each user
+// Rate limiting middleware
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: 'Too many requests, please try again later.',
+});
+
+app.use(limiter);
+
+// Generate a unique session ID for each user using crypto
 function generateSessionId() {
     return crypto.randomBytes(16).toString('hex');
 }
@@ -46,7 +56,8 @@ app.post('/process-files', upload.array('files'), async (req, res) => {
     }
 
     const keywordList = keywords.split(',').map(keyword => keyword.trim());
-    const sessionDir = path.join(__dirname, 'uploads', sessionId);
+    const sanitizedSessionId = path.basename(sessionId); // Sanitize session ID
+    const sessionDir = path.join(__dirname, 'uploads', sanitizedSessionId);
     const destinationWithKeyword = path.join(sessionDir, 'with_keyword');
     const destinationWithoutKeyword = path.join(sessionDir, 'without_keyword');
 
@@ -55,10 +66,10 @@ app.post('/process-files', upload.array('files'), async (req, res) => {
 
     try {
         for (const file of files) {
-            const sourcePath = file.path;
+            const sourcePath = path.resolve(file.path);
             const hasKeyword = await containsKeyword(sourcePath, keywordList);
             const destinationDir = hasKeyword ? destinationWithKeyword : destinationWithoutKeyword;
-            const destinationPath = path.join(destinationDir, file.originalname);
+            const destinationPath = path.join(destinationDir, path.basename(file.originalname));
 
             await fs.rename(sourcePath, destinationPath);
         }
@@ -72,7 +83,8 @@ app.post('/process-files', upload.array('files'), async (req, res) => {
 
 app.get('/download/:sessionId/:type', async (req, res) => {
     const { sessionId, type } = req.params;
-    const folderPath = path.join(__dirname, 'uploads', sessionId, type);
+    const sanitizedSessionId = path.basename(sessionId); // Sanitize session ID
+    const folderPath = path.join(__dirname, 'uploads', sanitizedSessionId, type);
 
     try {
         await fs.access(folderPath);
@@ -90,9 +102,10 @@ app.get('/download/:sessionId/:type', async (req, res) => {
 
 app.post('/cleanup', async (req, res) => {
     const { sessionId } = req.body;
+    const sanitizedSessionId = path.basename(sessionId); // Sanitize session ID
 
     try {
-        const sessionDir = path.join(__dirname, 'uploads', sessionId);
+        const sessionDir = path.join(__dirname, 'uploads', sanitizedSessionId);
         await fs.rmdir(sessionDir, { recursive: true });
         res.send('Files cleaned up successfully.');
     } catch (err) {
