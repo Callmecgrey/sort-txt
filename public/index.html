@@ -15,7 +15,7 @@
                 <input type="file" id="directory" webkitdirectory directory multiple>
             </div>
             <div class="form-group">
-                <label for="keyword">Enter Keyword:</label>
+                <label for="keyword">Enter Keywords (comma separated):</label>
                 <input type="text" id="keyword" name="keyword" required>
             </div>
             <button type="submit" class="btn">Process Files</button>
@@ -24,6 +24,10 @@
             <div id="progress"></div>
         </div>
         <p id="message"></p>
+        <div id="download-options" style="display: none;">
+            <button id="download-with-keyword" class="btn">Download Files with Keyword</button>
+            <button id="download-without-keyword" class="btn">Download Files without Keyword</button>
+        </div>
     </div>
     <script src="sort.js"></script>
 </body>
