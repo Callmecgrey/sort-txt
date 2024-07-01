@@ -22,7 +22,7 @@ SORT TXT is a simple Node.js application that allows users to sort `.txt` files 
 
     ```bash
     git clone https://github.com/callmecgrey/sort-txt.git
-    cd file-keyword-sorter
+    cd sort-txt
     ```
 
 2. Install dependencies:
